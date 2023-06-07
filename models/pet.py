@@ -8,12 +8,13 @@ class Pet:
             self.image = f"assets/pet_animations/pet_{pet_type_id}.png"
 
 
-    def __init__(self, name, pet_type_id, health, hunger, emotion):
+    def __init__(self, name, pet_type_id, health, hunger, emotion, chat_history=""):
         self.name = name
         self.health = health
         self.hunger = hunger
         self.emotion = emotion
         self.status = ""
+        self.chat_history = chat_history
         self.pet_type = self.get_pet_type_by_id(pet_type_id)
 
     def get_pet_type_by_id(self, pet_type_id):
@@ -57,7 +58,9 @@ class Pet:
         self.update_pet_status()
         self.save_info()
 
-    def save_info(self,chat_history=""):
+    def save_info(self,chat_history=None):
+        if chat_history is None:
+            chat_history = self.chat_history
         pet_info = {
             'name': self.name,
             'type_id': self.pet_type.id,
