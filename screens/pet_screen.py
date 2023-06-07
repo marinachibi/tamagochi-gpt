@@ -116,7 +116,7 @@ class PetScreen(Screen):
             if not user_input:
                 return
             self.chat_history += f"Usuário: {user_input}\n"  # Adicione essa linha
-            openai.api_key = "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"
+            openai.api_key = "YOUR_API_KEY"
             prompt = self.pet.pet_type.prompt.format(self=self)
             prompt += self.chat_history  # Modifique essa linha
             prompt += "Pet:"
