@@ -35,11 +35,18 @@ class PetGameApp(App):
             pet_hunger = pet_data.get("hunger")
             pet_emotion = pet_data.get("emotion")
             pet_status = pet_data.get("status")
+            
+            # Verificando se 'chat_history' existe no arquivo de salvamento antes de tentar carregá-lo
+            pet_chat_history = pet_data.get("chat_history", "") if "chat_history" in pet_data else ""
 
-            return Pet(pet_name, pet_type_id, pet_health, pet_hunger, pet_emotion)
+            pet = Pet(pet_name, pet_type_id, pet_health, pet_hunger, pet_emotion)
+            pet_screen = PetScreen(name='pet_screen', pet=pet)
+            pet_screen.chat_history = pet_chat_history  # Atribui o chat_history carregado ao pet_screen
+            self.sm.add_widget(pet_screen)
+
+            return pet
         else:
             return None
-
 
 if __name__ == '__main__':
     PetGameApp().run()

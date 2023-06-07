@@ -57,14 +57,15 @@ class Pet:
         self.update_pet_status()
         self.save_info()
 
-    def save_info(self):
+    def save_info(self,chat_history=""):
         pet_info = {
             'name': self.name,
             'type_id': self.pet_type.id,
             'health': self.health,
             'hunger': self.hunger,
             'emotion': self.emotion,
-            'status': self.status
+            'status': self.status,
+            "chat_history": chat_history
         }
         with open('save_file.txt', 'w') as file:
             json.dump(pet_info, file)

@@ -15,6 +15,7 @@ class PetScreen(Screen):
         self.layout = BoxLayout(orientation='vertical')
         self.build_layout()
         self.pet.update_pet_status()
+        self.chat_history = ""
         
     def build_layout(self):
         # Layout principal
@@ -110,33 +111,32 @@ class PetScreen(Screen):
         self.send_button.opacity = 1
     
     def send_message(self, instance):
-        user_input = self.chat_input.text
-
-        # Verifica se a entrada do usuário está vazia
-        if not user_input:
-            return
-
-        # Chama a API de chat GPT para obter a resposta
-        openai.api_key = "API_KEY"
-        prompt = self.pet.pet_type.prompt.format(self=self)
-        prompt += f" Usuário: {user_input}\nPet:"
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=prompt,
-            temperature=0.7,
-            max_tokens=50,
-            n=1,
-            stop=None
-        )
-
-        # Obtém a resposta gerada pelo modelo
-        chat_response = response.choices[0].text.strip()
-
-        # Atualiza a interface do usuário com a resposta do pet
-        self.chat_input.disabled = True
-        self.chat_input.opacity = 0
-        self.chat_input.text = ""  # Limpa a caixa de entrada
-        self.send_button.disabled = True
-        self.send_button.opacity = 0
-        self.chat_response_label.text = f"\nUser: {user_input}\nPet: {chat_response}"
-        self.update_pet_status()
+        try:
+            user_input = self.chat_input.text
+            if not user_input:
+                return
+            self.chat_history += f"Usuário: {user_input}\n"  # Adicione essa linha
+            openai.api_key = "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"
+            prompt = self.pet.pet_type.prompt.format(self=self)
+            prompt += self.chat_history  # Modifique essa linha
+            prompt += "Pet:"
+            response = openai.Completion.create(
+                engine="text-davinci-003",
+                prompt=prompt,
+                temperature=0.7,
+                max_tokens=50,
+                n=1,
+                stop=None
+            )
+            chat_response = response.choices[0].text.strip()
+            self.chat_history += f"Pet: {chat_response}\n"  # Adicione essa linha
+            self.chat_input.disabled = True
+            self.chat_input.opacity = 0
+            self.chat_input.text = ""
+            self.send_button.disabled = True
+            self.send_button.opacity = 0
+            self.chat_response_label.text = f"\nUser: {user_input}\nPet: {chat_response}"
+            self.update_pet_status()
+            self.pet.save_info(self.chat_history)
+        except Exception as e:
+            print("Erro ao enviar mensagem:", e)
