@@ -4,3 +4,4 @@ save_file.txt
 models/__pycache__/
 screens/__pycache__/
 tests/__pycache__/
+config.py
