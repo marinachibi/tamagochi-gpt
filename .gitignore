@@ -1,0 +1,5 @@
+.vscode/
+save_file.txt
+models/__pycache__/
+screens/__pycache__/
+tests/__pycache__/
