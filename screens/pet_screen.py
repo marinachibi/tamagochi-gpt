@@ -1,4 +1,4 @@
-import json
+import config
 import openai
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
@@ -116,7 +116,7 @@ class PetScreen(Screen):
             if not user_input:
                 return
             self.chat_history += f"Usuário: {user_input}\n"  # Adicione essa linha
-            openai.api_key = "YOUR_API_KEY"
+            openai.api_key = config.API_KEY
             prompt = self.pet.pet_type.prompt.format(self=self)
             prompt += self.chat_history  # Modifique essa linha
             prompt += "Pet:"
