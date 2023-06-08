@@ -12,14 +12,11 @@ from models.pet import Pet
 class AdoptionScreen(Screen):
     def __init__(self, **kwargs):
         super(AdoptionScreen, self).__init__(**kwargs)
-        self.pet_types = 5  # Número total de tipos de pet
 
+        self.pet = Pet(name='unnamed', health=100, hunger=10, emotion='happy')
         layout = BoxLayout(orientation='vertical')
         self.add_widget(layout)
-
-        pet_type_id = self.choose_random_pet_type()
-        pet_image_path = f"assets/pet_animations/pet_{pet_type_id}.png"
-        self.pet_animation = Image(source=pet_image_path)
+        self.pet_animation = Image(source=self.pet.get_image_path())
         layout.add_widget(self.pet_animation)
 
         self.name_input = TextInput(hint_text="Digite o nome do pet")
@@ -30,61 +27,29 @@ class AdoptionScreen(Screen):
 
         self.name_button = Button(text="Nomear pet", on_release=self.name_pet)
         layout.add_widget(self.name_button)
-        self.pet_type_id = pet_type_id
-
-    def choose_random_pet_type(self):
-        random_pet_type = random.randint(1, 5)
-        return random_pet_type
 
     def try_again(self, instance):
-        # Verifica se o botão "Tentar outro pet" ainda está habilitado
         if self.try_again_button.disabled:
             return
 
-        self.try_again_button.disabled = True  # Desabilita o botão
+        self.try_again_button.disabled = True  
         layout = self.children[0]
         layout.remove_widget(self.pet_animation)
 
-        # Atualiza o tipo de pet aleatoriamente
-        self.pet_type_id = self.choose_random_pet_type()
-        pet_image_path = f"assets/pet_animations/pet_{self.pet_type_id}.png"
-
-        # Cria uma nova instância do widget da animação do pet
-        self.pet_animation = Image(source=pet_image_path)
+        self.pet = Pet(name='unnamed', health=100, hunger=10, emotion='happy')
+        self.pet_animation = Image(source=self.pet.get_image_path())
         layout.add_widget(self.pet_animation,  index=len(layout.children))
 
-
     def name_pet(self, instance):
-        pet_name = self.name_input.text
-
-        # Verifica se o nome do pet foi digitado
+        pet_name = self.name_input.text.strip()
         if not pet_name:
             return
 
-        # Salva as informações do pet em um arquivo de salvamento (ou banco de dados)
-        pet_type_id = self.pet_type_id
-        pet_health = 100
-        pet_hunger = 10
-        pet_emotion = 'happy'
+        if self.pet.name == 'unnamed':
+            self.pet.name = pet_name
+            self.pet.save_info()
 
-        pet_data = {
-            "name": pet_name,
-            "type_id": pet_type_id,
-            "health": pet_health,
-            "hunger": pet_hunger,
-            "emotion": pet_emotion
-        }
-        self.save_pet_data(pet_data)
-
-        # Navega para a tela do pet existente
         screen_manager = self.manager
-        pet_type_id = pet_type_id
-        pet_screen = PetScreen(name='pet_screen', pet=Pet(pet_data['name'], pet_type_id, pet_data['health'], pet_data['hunger'], pet_data['emotion']))
+        pet_screen = PetScreen(name='pet_screen', pet=self.pet)
         screen_manager.add_widget(pet_screen)
         screen_manager.current = 'pet_screen'
-
-    def save_pet_data(self, pet_data):
-        save_file_path = "save_file.txt"  # Caminho do arquivo de salvamento
-
-        with open(save_file_path, "w") as file:
-            json.dump(pet_data, file)

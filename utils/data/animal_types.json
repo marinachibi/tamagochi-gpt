@@ -1,0 +1,42 @@
+{
+    "English": [
+        "Dog", "Cat", "Mouse", "Bird", "Fish", 
+        "Elephant", "Lion", "Tiger", "Cheetah", "Giraffe", 
+        "Bear", "Kangaroo", "Wolf", "Fox", "Horse", 
+        "Deer", "Rabbit", "Bee", "Butterfly", "Eagle", 
+        "Penguin", "Dolphin", "Whale", "Shark", "Turtle", 
+        "Snake", "Crocodile", "Frog", "Lizard", "Hippopotamus", 
+        "Panda", "Zebra", "Otter", "Koala", "Monkey", 
+        "Gorilla", "Chimpanzee", "Sloth", "Antelope", "Badger", 
+        "Bat", "Beaver", "Camel", "Coyote", "Crane", 
+        "Crow", "Dingo", "Duck", "Falcon", "Flamingo", 
+        "Goose", "Hawk", "Hedgehog", "Iguana", "Jackal", 
+        "Jellyfish", "Kestrel", "Leopard", "Lobster", "Mole", 
+        "Moose", "Nightingale", "Octopus", "Ostrich", "Otter", 
+        "Owl", "Parrot", "Peacock", "Pelican", "Platypus", 
+        "Polar Bear", "Porcupine", "Raccoon", "Raven", "Rhinoceros", 
+        "Scorpion", "Seagull", "Seal", "Squid", "Squirrel", 
+        "Swan", "Termite", "Toucan", "Vulture", "Walrus", 
+        "Weasel", "Wolverine", "Woodpecker", "Yak", "Zebu"
+    ],
+    "Portuguese": [
+        "Cão", "Gato", "Rato", "Pássaro", "Peixe", 
+        "Elefante", "Leão", "Tigre", "Chita", "Girafa", 
+        "Urso", "Canguru", "Lobo", "Raposa", "Cavalo", 
+        "Veado", "Coelho", "Abelha", "Borboleta", "Águia", 
+        "Pinguim", "Golfinho", "Baleia", "Tubarão", "Tartaruga", 
+        "Cobra", "Crocodilo", "Sapo", "Lagarto", "Hipopótamo", 
+        "Panda", "Zebra", "Lontra", "Coala", "Macaco", 
+        "Gorila", "Chimpanzé", "Preguiça", "Antílope", "Texugo", 
+        "Morcego", "Castor", "Camelo", "Coio", "Grou", 
+        "Corvo", "Dingo", "Pato", "Falcão", "Flamingo", 
+        "Ganso", "Falcão", "Ourico", "Iguana", "Chacal", 
+        "Medusa", "Peneireiro", "Leopardo", "Lagosta", "Toupeira", 
+        "Alce", "Rouxinol", "Polvo", "Avestruz", "Lontra", 
+        "Coruja", "Papagaio", "Pavão", "Pelicanos", "Ornitorrinco", 
+        "Urso Polar", "Porco-espinho", "Guaxinim", "Corvo", "Rinoceronte", 
+        "Escorpião", "Gaivota", "Foca", "Lula", "Esquilo", 
+        "Cisne", "Cupim", "Tucano", "Abutre", "Morsa", 
+        "Doninha", "Carcaju", "Pica-pau", "Iaque", "Zebu"
+    ]
+}

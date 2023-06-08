@@ -16,23 +16,23 @@ class PetScreen(Screen):
         self.build_layout()
         self.pet.update_pet_status()
         self.chat_history = ""
-        
+
     def build_layout(self):
-        # Layout principal
+        # Main Layout
         main_layout = BoxLayout(orientation='vertical')
 
-        # Layout para o nome do pet
+        # Pet name layout
         pet_name_label = Label(text=self.pet.name, font_size=30, size_hint=(1, 0.1))
         main_layout.add_widget(pet_name_label)
 
-        # Layout superior com imagem do pet
+        # Top layout with pet image
         top_layout = BoxLayout(size_hint=(1, 0.3))
-        pet_image = Image(source=self.pet.pet_type.image, size=(150, 150))
+        pet_image = Image(source=self.pet.get_image_path(), size=(150, 150))
         top_layout.add_widget(pet_image)
 
         main_layout.add_widget(top_layout)
 
-        # Layout com informações do pet
+        # Layout with pet info
         pet_info_layout = BoxLayout(orientation='vertical', size_hint=(1, 0.2))
         status_layout = BoxLayout(orientation='horizontal')
         self.hunger_label = Label(text='Fome: {}'.format(self.pet.hunger))
@@ -47,7 +47,7 @@ class PetScreen(Screen):
 
         main_layout.add_widget(pet_info_layout)
 
-        # Layout para ações do usuário
+        # Layout for user actions
         user_actions_layout = BoxLayout(orientation='vertical', size_hint=(1, 0.6))
         actions_layout = BoxLayout(orientation='horizontal', size_hint=(1, 0.3))
         feed_button = Button(text='Alimentar')
@@ -61,12 +61,12 @@ class PetScreen(Screen):
         actions_layout.add_widget(play_button)
         user_actions_layout.add_widget(actions_layout)
 
-        # Layout para chat
+        # Layout for chat
         chat_layout = BoxLayout(orientation='vertical', size_hint=(1, 0.7))
         self.chat_response_label = Label(text='', size_hint=(1, 0.5))
         chat_layout.add_widget(self.chat_response_label)
 
-        self.chat_input = TextInput(multiline=False, size_hint=(1, 0.2), pos_hint={'center_x': 0.5})  # Tamanho aumentado
+        self.chat_input = TextInput(multiline=False, size_hint=(1, 0.2), pos_hint={'center_x': 0.5})  
         self.chat_input.disabled = True
         self.chat_input.opacity = 0
         self.send_button = Button(text='Enviar', size_hint=(1, 0.1))
@@ -86,7 +86,7 @@ class PetScreen(Screen):
         self.add_widget(main_layout)
 
     def update_pet_status(self):
-        # Aqui atualizamos o status do pet na tela
+        # Here we update the pet status on the screen
         self.hunger_label.text = 'Fome: {}'.format(self.pet.hunger)
         self.health_label.text = 'Saúde: {}'.format(self.pet.health)
         self.emotion_label.text = 'Emoção: {}'.format(self.pet.emotion)
@@ -109,16 +109,16 @@ class PetScreen(Screen):
         self.chat_input.opacity = 1
         self.send_button.disabled = False
         self.send_button.opacity = 1
-    
+
     def send_message(self, instance):
         try:
             user_input = self.chat_input.text
             if not user_input:
                 return
-            self.chat_history += f"Usuário: {user_input}\n"  # Adicione essa linha
+            self.chat_history += f"Usuário: {user_input}\n"
             openai.api_key = config.API_KEY
-            prompt = self.pet.pet_type.prompt.format(self=self)
-            prompt += self.chat_history  # Modifique essa linha
+            prompt = self.pet.get_prompt()
+            prompt += self.chat_history
             prompt += "Pet:"
             response = openai.Completion.create(
                 engine="text-davinci-003",
@@ -129,7 +129,7 @@ class PetScreen(Screen):
                 stop=None
             )
             chat_response = response.choices[0].text.strip()
-            self.chat_history += f"Pet: {chat_response}\n"  # Adicione essa linha
+            self.chat_history += f"Pet: {chat_response}\n"
             self.chat_input.disabled = True
             self.chat_input.opacity = 0
             self.chat_input.text = ""
