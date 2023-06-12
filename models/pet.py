@@ -1,4 +1,5 @@
 import json
+import cv2
 import random
 import config
 import openai
@@ -6,6 +7,7 @@ import os
 import requests
 from PIL import Image
 from io import BytesIO
+import numpy as np
 
 class Pet:
     def __init__(self, name, health, hunger, emotion, chat_history="", image_number=None):
@@ -33,9 +35,9 @@ class Pet:
     def generate_image(self):
         openai.api_key = config.API_KEY
         response = openai.Image.create(
-            prompt=f"a 8 bit image like a tamagochi of a {self.animal_type}",
+            prompt=f"a 8 bit sprite-sheet like a tamagochi of a {self.animal_type} with 6 frames and black background",
             n=1,
-            size="512x512"
+            size="1024x1024"
         )
 
         image_url = response['data'][0]['url']
@@ -47,10 +49,41 @@ class Pet:
         image = Image.open(BytesIO(image_data))
         next_file_number = self.get_pet_number("assets/pet_animations")
         image.save(f"assets/pet_animations/pet_{next_file_number}.png")
+        
+        self.generate_atlas_file(next_file_number)
 
         return next_file_number
+    
+    def generate_atlas_file(self, image_number: int):
+        image_path = os.path.abspath(f"assets/pet_animations/pet_{image_number}.png")
 
+        # Carrega a imagem
+        img = cv2.imread(image_path)
 
+        # Assume que a imagem contém uma grade de 3x3 frames
+        grid_size = 3
+
+        # Calcula a altura e a largura do frame
+        frame_height = img.shape[0] // grid_size
+        frame_width = img.shape[1] // grid_size
+
+        # Cria um dicionário para armazenar os retângulos de contorno
+        data_dict = {image_path: {}}
+
+        # Gera retângulos para cada frame
+        for i in range(grid_size):
+            for j in range(grid_size):
+                x = j * frame_width
+                y = i * frame_height
+                data_dict[image_path][f"frame{i * grid_size + j + 1}"] = [x, y, frame_width, frame_height]
+
+        # Gera o caminho do arquivo de saída
+        output_file = "utils/data/animation_mapping.atlas"
+
+        # Escreve o dicionário como um arquivo JSON
+        with open(output_file, 'w') as f:
+            json.dump(data_dict, f, indent=4)
+        
     def get_pet_number(self, directory_path):
         files = os.listdir(directory_path)
         max_number = 0
@@ -59,7 +92,6 @@ class Pet:
                 number = int(file.replace("pet_", "").replace(".png", ""))
                 max_number = max(max_number, number)
         return max_number + 1
-        return animal_type, [char_1, char_2, char_3]
     
     def generate_prompt(self):
         return (f"O usuário está conversando com seu pet {self.name}. "

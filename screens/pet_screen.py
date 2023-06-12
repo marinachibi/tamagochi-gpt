@@ -6,6 +6,8 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.image import Image
 from kivy.uix.textinput import TextInput
+from models.animatedImage import AnimatedImage
+from kivy.core.image import Atlas
 
 class PetScreen(Screen):
     def __init__(self, pet, **kwargs):
@@ -27,9 +29,9 @@ class PetScreen(Screen):
 
         # Top layout with pet image
         top_layout = BoxLayout(size_hint=(1, 0.3))
-        pet_image = Image(source=self.pet.get_image_path(), size=(150, 150))
+        atlas = Atlas("utils/data/animation_mapping.atlas")
+        pet_image = AnimatedImage(atlas, size=(150, 150))
         top_layout.add_widget(pet_image)
-
         main_layout.add_widget(top_layout)
 
         # Layout with pet info
@@ -135,7 +137,7 @@ class PetScreen(Screen):
             self.chat_input.text = ""
             self.send_button.disabled = True
             self.send_button.opacity = 0
-            self.chat_response_label.text = f"\nUser: {user_input}\nPet: {chat_response}"
+            self.chat_response_label.text = f"\nVoce: {user_input}\nPet: {chat_response}"
             self.update_pet_status()
             self.pet.save_info(self.chat_history)
         except Exception as e:
