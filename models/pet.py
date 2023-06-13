@@ -35,7 +35,7 @@ class Pet:
     def generate_image(self):
         openai.api_key = config.API_KEY
         response = openai.Image.create(
-            prompt=f"a 8 bit sprite-sheet like a tamagochi of a {self.animal_type} with 6 frames and black background",
+            prompt=f"a 8 bit sprite-sheet like a tamagochi of a {self.animal_type} face with 6 frames and black background",
             n=1,
             size="1024x1024"
         )

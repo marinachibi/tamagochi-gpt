@@ -8,6 +8,8 @@ from kivy.uix.button import Button
 from kivy.uix.screenmanager import Screen
 from screens.pet_screen import PetScreen
 from models.pet import Pet
+from models.animatedImage import AnimatedImage
+from kivy.core.image import Atlas
 
 class AdoptionScreen(Screen):
     def __init__(self, **kwargs):
@@ -17,6 +19,8 @@ class AdoptionScreen(Screen):
         layout = BoxLayout(orientation='vertical')
         self.add_widget(layout)
         self.pet_animation = Image(source=self.pet.get_image_path())
+        atlas = Atlas("utils/data/animation_mapping.atlas")
+        self.pet_animation = AnimatedImage(atlas, size=(150, 150))
         layout.add_widget(self.pet_animation)
 
         self.name_input = TextInput(hint_text="Digite o nome do pet")
