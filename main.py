@@ -3,6 +3,7 @@ import json
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.screenmanager import NoTransition
+from kivy.core.audio import SoundLoader
 from screens.adoption_screen import AdoptionScreen
 from screens.pet_screen import PetScreen
 from models.pet import Pet
@@ -11,7 +12,9 @@ from models.pet import Pet
 class PetGameApp(App):
     def build(self):
         self.sm = ScreenManager(transition=NoTransition())
-        
+
+        # Load background music
+        self.load_background_music()
 
         pet = self.load_pet_from_save_file()
         if pet:
@@ -22,6 +25,15 @@ class PetGameApp(App):
             self.sm.current = 'adoption_screen'
 
         return self.sm
+
+    def load_background_music(self):
+        music_file_path = "assets/music/background_music.mp3"
+
+        if os.path.exists(music_file_path):
+            self.background_music = SoundLoader.load(music_file_path)
+            if self.background_music:
+                self.background_music.loop = True
+                self.background_music.play()
 
     def load_pet_from_save_file(self):
         save_file_path = "save_file.txt"
