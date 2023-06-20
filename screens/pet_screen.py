@@ -81,7 +81,6 @@ class PetScreen(Screen):
         chat_button = Button(text='Conversar', size_hint=(1, 0.1))
         chat_button.bind(on_press=self.show_chat_input)
         chat_layout.add_widget(chat_button)
-
         user_actions_layout.add_widget(chat_layout)
         main_layout.add_widget(user_actions_layout)
 
@@ -97,14 +96,22 @@ class PetScreen(Screen):
     def feed_button_pressed(self, instance):
         self.pet.feed()
         self.update_pet_status()
-
+        self.update_chat_history(self.pet.generate_reaction("te alimenta"))
+        
     def injection_button_pressed(self, instance):
         self.pet.give_injection()
         self.update_pet_status()
+        self.update_chat_history(self.pet.generate_reaction("te da uma injecao"))
 
     def play_button_pressed(self, instance):
         self.pet.play()
         self.update_pet_status()
+        self.update_chat_history(self.pet.generate_reaction("brinca com voce"))
+
+    def update_chat_history(self, pet_reaction):
+        self.chat_history += f"\nPet:{pet_reaction}"
+        self.chat_response_label.text = self.chat_history
+        self.pet.save_info(self.chat_history)
 
     def show_chat_input(self, instance):
         self.chat_input.disabled = False
@@ -117,21 +124,25 @@ class PetScreen(Screen):
             user_input = self.chat_input.text
             if not user_input:
                 return
-            self.chat_history += f"Usuário: {user_input}\n"
+            if not self.chat_history.strip():
+                prompt = self.pet.generate_prompt()
+                self.chat_history += prompt
+            else:
+                prompt = ""
+            
+            self.chat_history += f"{user_input}\n"
             openai.api_key = config.API_KEY
-            prompt = self.pet.get_prompt()
             prompt += self.chat_history
-            prompt += "Pet:"
             response = openai.Completion.create(
                 engine="text-davinci-003",
                 prompt=prompt,
                 temperature=0.7,
-                max_tokens=50,
+                max_tokens=40,
                 n=1,
                 stop=None
             )
             chat_response = response.choices[0].text.strip()
-            self.chat_history += f"Pet: {chat_response}\n"
+            self.chat_history += f"{chat_response}\n"
             self.chat_input.disabled = True
             self.chat_input.opacity = 0
             self.chat_input.text = ""

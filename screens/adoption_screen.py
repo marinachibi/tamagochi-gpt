@@ -41,7 +41,8 @@ class AdoptionScreen(Screen):
         layout.remove_widget(self.pet_animation)
 
         self.pet = Pet(name='unnamed', health=100, hunger=10, emotion='happy')
-        self.pet_animation = Image(source=self.pet.get_image_path())
+        atlas = Atlas("utils/data/animation_mapping.atlas")
+        self.pet_animation = AnimatedImage(atlas, size=(150, 150))
         layout.add_widget(self.pet_animation,  index=len(layout.children))
 
     def name_pet(self, instance):
