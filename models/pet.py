@@ -59,23 +59,40 @@ class Pet:
 
         # Carrega a imagem
         img = cv2.imread(image_path)
+        height, width, _ = img.shape
 
-        # Assume que a imagem contém uma grade de 3x3 frames
-        grid_size = 3
+        # Cria uma cópia da imagem para desenhar os retângulos de contorno (para fins de debug)
+        img_debug = img.copy()
 
-        # Calcula a altura e a largura do frame
-        frame_height = img.shape[0] // grid_size
-        frame_width = img.shape[1] // grid_size
+        # Aplica pré-processamento para melhorar a detecção de contornos
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        ret, thresh = cv2.threshold(blurred, 150, 255, cv2.THRESH_BINARY)
+
+
+        # Realiza detecção de contornos
+        contours, hierarchy = cv2.findContours(image=thresh, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE)
+
+        # Define critérios de filtragem de contornos
+        min_contour_area = 25000  # Área mínima para considerar um contorno
+        max_contour_area = 230000 # Área máxima para considerar um contorno
 
         # Cria um dicionário para armazenar os retângulos de contorno
         data_dict = {image_path: {}}
 
-        # Gera retângulos para cada frame
-        for i in range(grid_size):
-            for j in range(grid_size):
-                x = j * frame_width
-                y = i * frame_height
-                data_dict[image_path][f"frame{i * grid_size + j + 1}"] = [x, y, frame_width, frame_height]
+        # Gera retângulos para cada contorno filtrado
+        frame_index = 1
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if min_contour_area < area < max_contour_area:
+                x, y, w, h = cv2.boundingRect(contour)
+                y = height - (y + h)  # Transforma a coordenada y para o sistema de referência do canto inferior esquerdo
+                data_dict[image_path][f"frame{frame_index}"] = [x, y, w, h]
+                frame_index += 1
+
+                # Desenha o retângulo na imagem de debug
+                cv2.rectangle(img_debug, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                
 
         # Gera o caminho do arquivo de saída
         output_file = "utils/data/animation_mapping.atlas"
@@ -83,7 +100,11 @@ class Pet:
         # Escreve o dicionário como um arquivo JSON
         with open(output_file, 'w') as f:
             json.dump(data_dict, f, indent=4)
-        
+
+        # Mostra a imagem de debug com os retângulos desenhados
+        cv2.imshow("Debug Image", img_debug)
+
+  
     def get_pet_number(self, directory_path):
         files = os.listdir(directory_path)
         max_number = 0
@@ -94,16 +115,21 @@ class Pet:
         return max_number + 1
     
     def generate_prompt(self):
-        return (f"O usuário está conversando com seu pet {self.name}. "
-                f"Que é um {self.animal_type} virtual como um tamagochi e o usuário tem a responsabilidade de cuidar. "
-                f"Suas características são {self.characteristics[0]}, {self.characteristics[1]} e também é um pouco {self.characteristics[2]}. "
-                f"Atue de acordo com essas características.")
+        return (f"Você é um pet virtual como um tamagochi seu nome é {self.name}. "
+                f"Você é do tipo {self.animal_type} eu tenho a responsabilidade de cuidar de você. "
+                f"Suas características são {self.characteristics[0]}, {self.characteristics[1]} e também bastante {self.characteristics[2]}. "
+                f"Atue com um pet virtual de acordo com essas características.")
 
     def update_pet_status(self):
         if self.hunger > 11:
             self.status = 'Faminto'
+        elif self.health > 70:
+             self.status = 'Saudavel'
+        elif self.hunger == 0:                                 
+            self.status = 'Nao querendo comer'
         elif self.health < 50:
             self.status = 'Doente'
+
         else:
             self.status = 'Feliz'
 
@@ -122,6 +148,22 @@ class Pet:
         self.status = 'Feliz'
         self.update_pet_status()
         self.save_info()
+    
+    def generate_reaction(self,action):
+        reacton_prompt= f"Como um {self.animal_type},Quando voce esta {self.status} Diga uma frase para quando o meu dono {action}. Respoda de forma {self.characteristics[0]}"
+        openai.api_key = config.API_KEY
+        response = openai.Completion.create(
+                engine="text-davinci-003",
+                prompt=reacton_prompt,
+                temperature=0.7,
+                max_tokens=40,
+                n=1,
+                stop=None
+        )
+
+        rection = response.choices[0].text.strip()
+        return rection
+
 
     def save_info(self, chat_history=None):
         if chat_history is None:
