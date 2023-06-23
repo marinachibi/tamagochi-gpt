@@ -8,18 +8,22 @@ import requests
 from PIL import Image
 from io import BytesIO
 import numpy as np
+from datetime import datetime
 
 class Pet:
-    def __init__(self, name, health, hunger, emotion, chat_history="", image_number=None):
+    def __init__(self, name, health, hunger, emotion, chat_history="", image_number=None, last_fed_time=None,last_play_time=None,last_chat_time=None):
         self.name = name
         self.health = health
         self.hunger = hunger
         self.emotion = emotion
-        self.status = ""
+        self.status = []
         self.chat_history = chat_history
         self.animal_type, self.characteristics = self.get_animal_and_characteristics()
         self.image = image_number if image_number is not None else self.generate_image()
         self.prompt = self.generate_prompt()
+        self.last_fed_time = last_fed_time if last_fed_time is not None else datetime.now()
+        self.last_play_time = last_play_time if last_play_time is not None else datetime.now()
+        self.last_chat_time = last_chat_time if last_chat_time is not None else datetime.now()
 
     def get_animal_and_characteristics(self):
         with open('utils/data/animal_types.json', encoding='utf-8') as f:
@@ -121,31 +125,71 @@ class Pet:
                 f"Atue com um pet virtual de acordo com essas características.")
 
     def update_pet_status(self):
-        if self.hunger > 11:
-            self.status = 'Faminto'
-        elif self.health > 70:
-             self.status = 'Saudavel'
-        elif self.hunger == 0:                                 
-            self.status = 'Nao querendo comer'
-        elif self.health < 50:
-            self.status = 'Doente'
+        current_time = datetime.now()
 
+        last_fed_time_datetime = datetime.strptime(self.last_fed_time, "%Y-%m-%dT%H:%M:%S.%f") if isinstance(self.last_fed_time, str) else self.last_fed_time
+        last_play_time_datetime = datetime.strptime(self.last_play_time, "%Y-%m-%dT%H:%M:%S.%f") if isinstance(self.last_play_time, str) else self.last_play_time
+        last_chat_time_datetime = datetime.strptime(self.last_chat_time, "%Y-%m-%dT%H:%M:%S.%f") if isinstance(self.last_chat_time, str) else self.last_chat_time
+
+        if self.hunger > 11:
+            if 'Faminto' not in self.status:
+                self.status.append('Faminto')
+            if (current_time - last_fed_time_datetime).total_seconds() > 30*60:  # Se passou mais de 30 minutos
+                self.health -= 10
         else:
-            self.status = 'Feliz'
+            if 'Faminto' in self.status:
+                self.status.remove('Faminto')
+
+        if self.health > 70:
+            if 'Saudavel' not in self.status:
+                self.status.append('Saudavel')
+        else:
+            if 'Saudavel' in self.status:
+                self.status.remove('Saudavel')
+
+        if self.hunger == 0:
+            if 'Nao querendo comer' not in self.status:
+                self.status.append('Nao querendo comer')
+        else:
+            if 'Nao querendo comer' in self.status:
+                self.status.remove('Nao querendo comer')
+
+        if self.health < 50:
+            if 'Doente' not in self.status:
+                self.status.append('Doente')
+            if (current_time - last_fed_time_datetime).total_seconds() > 48*60*60:  # Se passou mais de 48 horas
+                if 'Morto' not in self.status:
+                    self.status.append('Morto')
+        else:
+            if 'Doente' in self.status:
+                self.status.remove('Doente')
+
+        if (current_time - last_play_time_datetime).total_seconds() > 4*60*60:  # Se passou mais de 4 horas
+            if 'Entediado' not in self.status:
+                self.status.append('Entediado')
+        else:
+            if 'Entediado' in self.status:
+                self.status.remove('Entediado')
+
+        if (current_time - last_chat_time_datetime).total_seconds() > 4*60*60:  # Se passou mais de 4 horas
+            if 'Triste' not in self.status:
+                self.status.append('Triste')
+        else:
+            if 'Triste' in self.status:
+                self.status.remove('Triste')
 
     def feed(self):
         self.hunger = max(0, self.hunger - 10)
+        self.last_fed_time = datetime.now()
         self.update_pet_status()
         self.save_info()
 
     def give_injection(self):
         self.health = min(100, self.health + 10)
-        self.update_pet_status()
         self.save_info()
 
     def play(self):
-        self.emotion = 'Feliz'
-        self.status = 'Feliz'
+        self.last_play_time = datetime.now()
         self.update_pet_status()
         self.save_info()
     
@@ -176,7 +220,10 @@ class Pet:
             'hunger': self.hunger,
             'emotion': self.emotion,
             'status': self.status,
-            'image_number': self.image,  # Salvamos o número da imagem aqui
+            'image_number': self.image,  
+            'last_fed_time':self.last_fed_time.isoformat() if isinstance(self.last_fed_time, datetime) else self.last_fed_time,
+            'last_play_time': self.last_play_time.isoformat() if isinstance(self.last_play_time, datetime) else self.last_play_time,
+            'last_chat_time': self.last_chat_time.isoformat() if isinstance(self.last_chat_time, datetime) else self.last_chat_time,
             "chat_history": chat_history
         }
         with open('save_file.txt', 'w') as file:

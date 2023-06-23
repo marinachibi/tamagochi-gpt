@@ -8,6 +8,7 @@ from kivy.uix.image import Image
 from kivy.uix.textinput import TextInput
 from models.animatedImage import AnimatedImage
 from kivy.core.image import Atlas
+from datetime import datetime
 
 class PetScreen(Screen):
     def __init__(self, pet, **kwargs):
@@ -151,5 +152,6 @@ class PetScreen(Screen):
             self.chat_response_label.text = f"\nVoce: {user_input}\nPet: {chat_response}"
             self.update_pet_status()
             self.pet.save_info(self.chat_history)
+            self.pet.last_talk_time = datetime.now()
         except Exception as e:
             print("Erro ao enviar mensagem:", e)
