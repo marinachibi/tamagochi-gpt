@@ -9,6 +9,7 @@ from PIL import Image
 from io import BytesIO
 import numpy as np
 from datetime import datetime
+from screens.game_over_screen import GameOverScreen
 
 class Pet:
     def __init__(self, name, health, hunger, emotion, chat_history="", image_number=None, last_fed_time=None,last_play_time=None,last_chat_time=None):
@@ -130,12 +131,18 @@ class Pet:
         last_fed_time_datetime = datetime.strptime(self.last_fed_time, "%Y-%m-%dT%H:%M:%S.%f") if isinstance(self.last_fed_time, str) else self.last_fed_time
         last_play_time_datetime = datetime.strptime(self.last_play_time, "%Y-%m-%dT%H:%M:%S.%f") if isinstance(self.last_play_time, str) else self.last_play_time
         last_chat_time_datetime = datetime.strptime(self.last_chat_time, "%Y-%m-%dT%H:%M:%S.%f") if isinstance(self.last_chat_time, str) else self.last_chat_time
+        time_diference = current_time - last_fed_time_datetime
+        time_diference = time_diference.total_seconds() /60
+        self.hunger += int(time_diference)*10
+        self.hunger = min(self.hunger,100)
+
+        if self.hunger > 11:
+            self.health -=int(time_diference /10) *10
+            self.health = max(self.health, 0)
 
         if self.hunger > 11:
             if 'Faminto' not in self.status:
                 self.status.append('Faminto')
-            if (current_time - last_fed_time_datetime).total_seconds() > 30*60:  # Se passou mais de 30 minutos
-                self.health -= 10
         else:
             if 'Faminto' in self.status:
                 self.status.remove('Faminto')
@@ -207,6 +214,12 @@ class Pet:
 
         rection = response.choices[0].text.strip()
         return rection
+
+    def check_status(self, dt):
+        if 'Morto' in self.pet.status:
+            self.manager.add_widget(GameOverScreen(self.pet, name='gameover'))
+            self.manager.current = 'gameover'
+            self.check_status_event.cancel()
 
 
     def save_info(self, chat_history=None):
