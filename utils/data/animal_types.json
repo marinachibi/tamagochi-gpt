@@ -17,7 +17,7 @@
         "Polar Bear", "Porcupine", "Raccoon", "Raven", "Rhinoceros", 
         "Scorpion", "Seagull", "Seal", "Squid", "Squirrel", 
         "Swan", "Termite", "Toucan", "Vulture", "Walrus", 
-        "Weasel", "Wolverine", "Woodpecker", "Yak", "Zebu"
+        "Weasel", "Wolverine", "Woodpecker", "Yak", "Zebu", "Axolot"
     ],
     "Portuguese": [
         "Cão", "Gato", "Rato", "Pássaro", "Peixe", 
@@ -37,6 +37,7 @@
         "Urso Polar", "Porco-espinho", "Guaxinim", "Corvo", "Rinoceronte", 
         "Escorpião", "Gaivota", "Foca", "Lula", "Esquilo", 
         "Cisne", "Cupim", "Tucano", "Abutre", "Morsa", 
-        "Doninha", "Carcaju", "Pica-pau", "Iaque", "Zebu"
+        "Doninha", "Carcaju", "Pica-pau", "Iaque", "Zebu", "Peixe-Lua", 
+        "Suricate","Dragão de Komodo", "Axolot" 
     ]
 }
