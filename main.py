@@ -13,8 +13,7 @@ class PetGameApp(App):
     def build(self):
         self.sm = ScreenManager(transition=NoTransition())
 
-        # Load background music
-        self.load_background_music()
+       # self.load_background_music()
 
         pet = self.load_pet_from_save_file()
         if pet:
@@ -50,9 +49,12 @@ class PetGameApp(App):
             pet_emotion = pet_data.get("emotion")
             pet_status = pet_data.get("status")
             pet_image = pet_data.get("image_number")
+            pet_last_fed_time = pet_data.get("last_fed_time")
+            pet_last_play_time = pet_data.get("last_play_time")
+            last_chat_time = pet_data.get("last_chat_time")
             pet_chat_history = pet_data.get("chat_history", "")
 
-            pet = Pet(pet_name, pet_health, pet_hunger, pet_emotion, pet_chat_history, image_number=pet_image)
+            pet = Pet(pet_name, pet_health, pet_hunger, pet_emotion, chat_history=pet_chat_history, image_number=pet_image,last_fed_time=pet_last_fed_time,last_play_time=pet_last_play_time,last_chat_time=pet_last_play_time)
             pet.animal_type = pet_animal_type  # Atribuir o tipo de animal carregado
             pet.characteristics = pet_characteristics  # Atribuir as características carregadas
 

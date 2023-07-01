@@ -12,16 +12,16 @@ from datetime import datetime
 from screens.game_over_screen import GameOverScreen
 
 class Pet:
-    def __init__(self, name, health, hunger, emotion, chat_history="", image_number=None, last_fed_time=None,last_play_time=None,last_chat_time=None):
+    def __init__(self, name, health, hunger, emotion, chat_history=None, image_number=None, last_fed_time=None,last_play_time=None,last_chat_time=None):
         self.name = name
         self.health = health
         self.hunger = hunger
         self.emotion = emotion
         self.status = []
-        self.chat_history = chat_history
         self.animal_type, self.characteristics = self.get_animal_and_characteristics()
         self.image = image_number if image_number is not None else self.generate_image()
         self.prompt = self.generate_prompt()
+        self.chat_history = chat_history if chat_history is not None else ""
         self.last_fed_time = last_fed_time if last_fed_time is not None else datetime.now()
         self.last_play_time = last_play_time if last_play_time is not None else datetime.now()
         self.last_chat_time = last_chat_time if last_chat_time is not None else datetime.now()
@@ -40,7 +40,7 @@ class Pet:
     def generate_image(self):
         openai.api_key = config.API_KEY
         response = openai.Image.create(
-            prompt=f"a 8 bit sprite-sheet like a tamagochi of a {self.animal_type} face with 6 frames and black background",
+            prompt=f"a 16 bit sprite-sheet like a tamagochi of a {self.animal_type} face with 6 frames and black background",
             n=1,
             size="1024x1024"
         )
@@ -114,9 +114,15 @@ class Pet:
         files = os.listdir(directory_path)
         max_number = 0
         for file in files:
-            if file.startswith("pet_"):
-                number = int(file.replace("pet_", "").replace(".png", ""))
-                max_number = max(max_number, number)
+            # Apenas considera arquivos que começam com "pet_" e terminam com ".png"
+            if file.startswith("pet_") and file.endswith(".png"):
+                try:
+                    number = int(file.replace("pet_", "").replace(".png", ""))
+                    if number > max_number:
+                        max_number = number
+                except ValueError:
+                    # Ignora arquivos que não seguem o formato esperado
+                    continue
         return max_number + 1
     
     def generate_prompt(self):
@@ -201,7 +207,7 @@ class Pet:
         self.save_info()
     
     def generate_reaction(self,action):
-        reacton_prompt= f"Como um {self.animal_type},Quando voce esta {self.status} Diga uma frase para quando o meu dono {action}. Respoda de forma {self.characteristics[0]}"
+        reacton_prompt= self.chat_history + f"Como um {self.animal_type},Quando voce esta {self.status} Diga uma frase para quando o meu dono {action}. Respoda de forma {self.characteristics[0]}"
         openai.api_key = config.API_KEY
         response = openai.Completion.create(
                 engine="text-davinci-003",
@@ -212,8 +218,10 @@ class Pet:
                 stop=None
         )
 
-        rection = response.choices[0].text.strip()
-        return rection
+        reaction = response.choices[0].text.strip()
+        self.chat_history += f"Seu pet reagiu: {reaction}\n"
+        self.save_info(self.chat_history)
+        return reaction
 
     def check_status(self, dt):
         if 'Morto' in self.pet.status:

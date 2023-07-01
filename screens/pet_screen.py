@@ -9,6 +9,8 @@ from kivy.uix.textinput import TextInput
 from models.animatedImage import AnimatedImage
 from kivy.core.image import Atlas
 from datetime import datetime
+from screens.game_over_screen import GameOverScreen
+from kivy.clock import Clock
 
 class PetScreen(Screen):
     def __init__(self, pet, **kwargs):
@@ -19,7 +21,8 @@ class PetScreen(Screen):
         self.build_layout()
         self.pet.update_pet_status()
         self.chat_history = ""
-
+        self.check_status_event = Clock.schedule_interval(self.check_status, 1)
+    
     def build_layout(self):
         # Main Layout
         main_layout = BoxLayout(orientation='vertical')
@@ -155,3 +158,17 @@ class PetScreen(Screen):
             self.pet.last_talk_time = datetime.now()
         except Exception as e:
             print("Erro ao enviar mensagem:", e)
+        
+    def check_status(self, dt):
+        if 'Morto' in self.pet.status:
+            print(f"self.manager before scheduling: {self.manager}")
+            self.manager.add_widget(GameOverScreen(self.pet, name='gameover'))
+            self.manager.remove_widget(self)
+            self.check_status_event.cancel()
+
+            def change_screen(dt):
+                print(f"self.manager inside scheduled function: {self.manager}")
+                if self.manager:
+                    self.manager.current = 'gameover'
+
+            Clock.schedule_once(change_screen, 0.1)
